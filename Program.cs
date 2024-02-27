@@ -29,9 +29,12 @@ namespace H5ServersideProgrammering
                 })
                 .AddIdentityCookies();
 
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnectionIdentity") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionStringIdentity = builder.Configuration.GetConnectionString("DefaultConnectionIdentity") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionStringData = builder.Configuration.GetConnectionString("DefaultConnectionData") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(connectionString));
+                options.UseSqlite(connectionStringIdentity));
+            builder.Services.AddDbContext<AppDataContext>(options =>
+                options.UseSqlite(connectionStringData));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
