@@ -1,6 +1,7 @@
 using H5ServersideProgrammering.Components;
 using H5ServersideProgrammering.Components.Account;
 using H5ServersideProgrammering.Data;
+using H5ServersideProgrammering.Repository;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,8 @@ namespace H5ServersideProgrammering
             builder.Services.AddDbContext<AppDataContext>(options =>
                 options.UseSqlite(connectionStringData));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+            builder.Services.AddTransient<IUserCPRRepository, UserCPRRepository>();
 
             builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
