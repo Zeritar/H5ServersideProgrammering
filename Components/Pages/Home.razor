@@ -1,14 +1,35 @@
 ﻿@using H5ServersideProgrammering.Repository;
 @using H5ServersideProgrammering.Data;
+@using System.Security.Claims
 @page "/"
 
 @attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = "AuthenticatedUser")]
 @inject IUserCPRRepository UserCprRepository
+@inject AuthenticationStateProvider AuthenticationStateProvider
 <PageTitle>Home</PageTitle>
 
 <AuthorizeView>
     <Authorized>
         <h1> @context.User.Identity?.Name!</h1>
+        @if (message != null)
+        {
+            <h2 style="font-size: 80px;">@message</h2>
+        }
+
+
+
+        @if (items.Count > 0)
+        {
+
+            <ul>
+            @foreach (var item in items)
+            {
+                <li>
+                    @item.ItemText
+                </li>
+            }
+            </ul>
+        }
     </Authorized>
 </AuthorizeView>
 
@@ -37,17 +58,13 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Specify your preferred font family here */
         }
-
-            input[type="submit"],
-            button[type="submit"] {
+            button {
                 background-color: #007bff;
                 color: #fff;
                 cursor: pointer;
                 width: 100%; /* Make the submit button same width as input */
             }
-
-                input[type="submit"]:hover,
-                button[type="submit"]:hover {
+                button:hover {
                     background-color: #0056b3;
                 }
     </style>
@@ -61,6 +78,14 @@
             string? UserID;
             UserCpr? userCpr;
             string? CprValue;
+            List<TodoItem> items = new List<TodoItem>();
+            string? message;
+
+            protected override void OnInitialized()
+            {
+                AuthenticationState state = AuthenticationStateProvider.GetAuthenticationStateAsync().Result;
+                UserID = state.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            }
 
             public bool ExistInDatabase()
             {
@@ -75,31 +100,29 @@
 
             public void OnButtonPress()
             {
+                if (UserID == null) return;
                 if (CprValue == null  || CprValue == "") return;
 
                 if (ExistInDatabase())
                 {
                     if (CprValue == userCpr.Cpr)
                     {
-                        //show todoliste when ready
-
+                        message = "du findes i databasen";
+                        items.Add(new TodoItem { ItemText = "gør noget" });
                     }
                     else
                     {
                         // forkert CPR nummer
-                        <dialog>Forkert CPR nummer</dialog>
+                        message = "FORKERT CPR NUMMER";
                     }
                 }
                 else
                 {
-                    // opret userCPR med indtastet CPR nummer
+                    message = "du er blevet oprettet";
+                    UserCprRepository.Add(new UserCpr { UserId = UserID, Cpr = CprValue });
                 }
 
-                
-                
             }
-
-
         }
     </div>
 </body>
