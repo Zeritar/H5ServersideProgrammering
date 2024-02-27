@@ -5,7 +5,8 @@ namespace H5ServersideProgrammering.Repository
     public interface IUserCPRRepository
     {
         public List<UserCpr> GetAll();
-        public UserCpr GetById(int id);
+        public UserCpr? GetById(int id);
+        public UserCpr? GetByUserId(string userID);
         public void Add(UserCpr userCpr);
         public void Update(UserCpr userCpr);
         public void Delete(int id);
@@ -25,9 +26,14 @@ namespace H5ServersideProgrammering.Repository
             return _context.UserCprs.ToList();
         }
 
-        public UserCpr GetById(int id)
+        public UserCpr? GetById(int id)
         {
-            return _context.UserCprs.First(x => x.Id == id);
+            return _context.UserCprs.FirstOrDefault(x => x.Id == id);
+        }
+
+        public UserCpr? GetByUserId(string userID)
+        {
+            return _context.UserCprs.FirstOrDefault(x => x.UserId == userID);
         }
 
         public void Add(UserCpr userCpr)
