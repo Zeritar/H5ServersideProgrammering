@@ -15,10 +15,21 @@ public partial class AppDataContext : DbContext
     {
     }
 
+    public virtual DbSet<TodoItem> TodoItems { get; set; }
+
     public virtual DbSet<UserCpr> UserCprs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<TodoItem>(entity =>
+        {
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.ItemText).HasColumnType("nvarchar(500)");
+            entity.Property(e => e.UserId)
+                .HasColumnType("nvarchar(500)")
+                .HasColumnName("UserID");
+        });
+
         modelBuilder.Entity<UserCpr>(entity =>
         {
             entity.ToTable("UserCPR");
