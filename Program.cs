@@ -44,6 +44,16 @@ namespace H5ServersideProgrammering
 
             builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AuthenticatedUser", Policy =>
+                {
+                    Policy.RequireAuthenticatedUser();
+                });
+            });
+
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
