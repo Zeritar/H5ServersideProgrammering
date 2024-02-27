@@ -1,6 +1,9 @@
-﻿@page "/"
+﻿@using H5ServersideProgrammering.Repository;
+@using H5ServersideProgrammering.Data;
+@page "/"
 
 @attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = "AuthenticatedUser")]
+@inject IUserCPRRepository UserCprRepository
 <PageTitle>Home</PageTitle>
 
 <AuthorizeView>
@@ -24,8 +27,8 @@
             margin: 0 auto;
         }
 
-        input[type="text"],
-        input[type="submit"] {
+        input,
+        button {
             width: 100%; /* Width minus padding and border */
             margin: 5px 0;
             padding: 10px;
@@ -35,28 +38,66 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Specify your preferred font family here */
         }
 
-        input[type="submit"] {
-            background-color: #007bff;
-            color: #fff;
-            cursor: pointer;
-            width: 100%; /* Make the submit button same width as input */
-        }
-
-            input[type="submit"]:hover {
-                background-color: #0056b3;
+            input[type="submit"],
+            button[type="submit"] {
+                background-color: #007bff;
+                color: #fff;
+                cursor: pointer;
+                width: 100%; /* Make the submit button same width as input */
             }
+
+                input[type="submit"]:hover,
+                button[type="submit"]:hover {
+                    background-color: #0056b3;
+                }
     </style>
 </head>
 <body>
     <div class="container">
-        <form method="post">
             <label for="cpr">Indtast dit cpr-nr:</label>
-            <input type="text" id="cpr" name="cpr" maxlength="10" required />
-            <input type="submit" value="Submit" />
-        </form>
+            <input type="text" @bind="CprValue" @oninput="@((e) => {CprValue=(string?)e.Value;})" id="cpr" name="cpr" maxlength="10" required />
+            <button @onclick="OnButtonPress">Submit</button>
         @code {
-        
+            string? UserID;
+            UserCpr? userCpr;
+            string? CprValue;
 
+            public bool ExistInDatabase()
+            {
+                if (UserID == null) return false;
+
+                userCpr = UserCprRepository.GetByUserId(UserID);
+
+                if (userCpr == null) return false;
+
+                return true;
+            }
+
+            public void OnButtonPress()
+            {
+                if (CprValue == null  || CprValue == "") return;
+
+                if (ExistInDatabase())
+                {
+                    if (CprValue == userCpr.Cpr)
+                    {
+                        //show todoliste when ready
+
+                    }
+                    else
+                    {
+                        // forkert CPR nummer
+                        <dialog>Forkert CPR nummer</dialog>
+                    }
+                }
+                else
+                {
+                    // opret userCPR med indtastet CPR nummer
+                }
+
+                
+                
+            }
 
 
         }
