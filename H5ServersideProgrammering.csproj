@@ -21,9 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Data\appData.db">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Data\appIdentity.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

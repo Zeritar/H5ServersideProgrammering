@@ -1,11 +1,14 @@
 ﻿@using H5ServersideProgrammering.Repository;
 @using H5ServersideProgrammering.Data;
+@using H5ServersideProgrammering.Handlers;
 @using System.Security.Claims
 @page "/"
 
 @attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = "AuthenticatedUser")]
 @inject IUserCPRRepository UserCprRepository
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject HashingHandler HashingHandler
+@inject AsymmetricEncryptionHandler AsymmetricEncryptionHandler
 @inject ITodoRepository TodoRepository
 
 <PageTitle>Home</PageTitle>
@@ -90,15 +93,15 @@
         </AuthorizeView>
 
         @code {
-            string? UserID;
-            UserCpr? userCpr;
-            string? CprValue;
-            string TodoValue;
-            List<TodoItem> items = new List<TodoItem>();
-            string? message;
-            bool cprValidated = false;
+                string? UserID;
+                UserCpr? userCpr;
+                string? CprValue;
+                string TodoValue;
+                List<TodoItem> items = new List<TodoItem>();
+                string? message;
+                bool cprValidated = false;
 
-            protected override async Task OnInitializedAsync()
+                protected override async Task OnInitializedAsync()
             {
                 var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
                 UserID = state.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -120,9 +123,9 @@
                     ValidateCpr();
                     if (cprValidated)
                     {
-
                         var allTodoItems = TodoRepository.GetByUserId(UserID);
                         items.AddRange(allTodoItems);
+                        items.ForEach(x => x.ItemText = AsymmetricEncryptionHandler.Decrypt(x.ItemText));
                     }
                 }
                 else
@@ -135,14 +138,19 @@
             {
                 if (string.IsNullOrEmpty(CprValue)) return;
 
-                if (ExistInDatabase() && CprValue == userCpr?.Cpr)
+                if (ExistInDatabase() && HashingHandler.Hash(CprValue, HashAlgorithm.SHA256, HashOutput.String) == userCpr?.Cpr)
                 {
                     message = "CPR validated successfully.";
                     cprValidated = true;
                 }
+                else if (!ExistInDatabase())
+                {
+                    UserCprRepository.Add(new UserCpr { UserId = UserID, Cpr = HashingHandler.Hash(CprValue, HashAlgorithm.SHA256, HashOutput.String) });
+                    cprValidated = true;
+                }
                 else
                 {
-                    message = "Incorrect CPR number or user does not exist.";
+                    message = "Incorrect CPR number";
                 }
             }
 
@@ -152,7 +160,7 @@
                 {
 
                     items.Add(new TodoItem { UserId = UserID, ItemText = TodoValue });
-                    TodoRepository.Add(new TodoItem { UserId = UserID,ItemText = TodoValue});
+                    TodoRepository.Add(new TodoItem { UserId = UserID,ItemText = AsymmetricEncryptionHandler.Encrypt(TodoValue)});
                     TodoValue = ""; 
                     message = "Todo item added.";
                 }
