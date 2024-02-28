@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace H5ServersideProgrammering.Handlers;
 
@@ -29,14 +30,48 @@ public class AsymmetricEncryptionHandler
 {
     private string _privateKey;
     private string _publicKey;
+    private readonly IConfiguration _configuration;
 
-    public AsymmetricEncryptionHandler()
+    public AsymmetricEncryptionHandler(IConfiguration configuration)
     {
-        using (var rsa = new RSACryptoServiceProvider())
+        _configuration = configuration;
+        string privateKeyPath = _configuration["Keys:PrivateKey"];
+        string publicKeyPath = _configuration["Keys:PublicKey"];
+
+        if (!File.Exists(privateKeyPath) || !File.Exists(publicKeyPath))
         {
-            _privateKey = rsa.ToXmlString(true);
-            _publicKey = rsa.ToXmlString(false);
+            using (var rsa = new RSACryptoServiceProvider())
+            {
+                _privateKey = rsa.ToXmlString(true);
+                _publicKey = rsa.ToXmlString(false);
+
+                Directory.CreateDirectory(Path.GetDirectoryName(privateKeyPath));
+                Directory.CreateDirectory(Path.GetDirectoryName(publicKeyPath));
+
+                File.Create(privateKeyPath).Close();
+                File.Create(publicKeyPath).Close();
+
+                StreamWriter streamWriter = new StreamWriter(privateKeyPath);
+                streamWriter.Write(_privateKey);
+                streamWriter.Close();
+
+                streamWriter = new StreamWriter(publicKeyPath);
+                streamWriter.Write(_publicKey);
+                streamWriter.Close();
+            }
         }
+        else
+        {
+            _privateKey = File.ReadAllText(privateKeyPath);
+            _publicKey = File.ReadAllText(publicKeyPath);
+        }
+        //using (var rsa = new RSACryptoServiceProvider())
+        //{
+        //    _privateKey = rsa.ToXmlString(true);
+        //    _publicKey = rsa.ToXmlString(false);
+        //}
+        
+
     }
 
     public string Encrypt(string input)
