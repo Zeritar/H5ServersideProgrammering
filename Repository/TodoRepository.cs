@@ -16,50 +16,45 @@ namespace H5ServersideProgrammering.Repository
 
     public class TodoRepository : ITodoRepository
     {
-        private readonly List<TodoItem> _todoItems = new();
+        private readonly AppDataContext _context;
+
+        public TodoRepository(AppDataContext context)
+        {
+            _context = context;
+        }
 
         public List<TodoItem> GetAll()
         {
-            return _todoItems;
+            return _context.TodoItems.ToList();
         }
 
         public TodoItem? GetById(int id)
         {
-            return _todoItems.FirstOrDefault(t => t.Id == id);
+            return _context.TodoItems.FirstOrDefault(t => t.Id == id);
         }
 
         public List<TodoItem> GetByUserId(string userId)
         {
-            return _todoItems.Where(t => t.UserId == userId).ToList();
+            return _context.TodoItems.Where(t => t.UserId == userId).ToList();
         }
 
         public void Add(TodoItem todoItem)
         {
-            
-            int newId = _todoItems.Any() ? _todoItems.Max(t => t.Id) + 1 : 1;
-            todoItem.Id = newId;
-            _todoItems.Add(todoItem);
+            _context.TodoItems.Add(todoItem);
+            _context.SaveChanges();
         }
 
         public void Update(TodoItem todoItem)
         {
-            var existingItem = GetById(todoItem.Id);
-            if (existingItem != null)
-            {
-          
-                //existingItem.Text = todoItem.Text;
-                //existingItem.IsComplete = todoItem.IsComplete;
-             
-            }
+            _context.TodoItems.Update(todoItem);
+            _context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var item = GetById(id);
-            if (item != null)
-            {
-                _todoItems.Remove(item);
-            }
+            var todoItem = _context.TodoItems.First(x => x.Id == id);
+            _context.TodoItems.Remove(todoItem);
+            _context.SaveChanges();
         }
     }
 }
