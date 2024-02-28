@@ -1,8 +1,10 @@
 using H5ServersideProgrammering.Components;
 using H5ServersideProgrammering.Components.Account;
 using H5ServersideProgrammering.Data;
+using H5ServersideProgrammering.Handlers;
 using H5ServersideProgrammering.Repository;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,6 +41,9 @@ namespace H5ServersideProgrammering
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddTransient<IUserCPRRepository, UserCPRRepository>();
+            builder.Services.AddSingleton<SymmetricEncryptionHandler>();
+            builder.Services.AddSingleton<AsymmetricEncryptionHandler>();
+            builder.Services.AddSingleton<HashingHandler>();
             builder.Services.AddTransient<ITodoRepository, TodoRepository>();
 
             builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
