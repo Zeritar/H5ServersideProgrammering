@@ -1,6 +1,7 @@
 ﻿using H5ServersideProgrammering.Data;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace H5ServersideProgrammering.Repository
 {
@@ -52,9 +53,16 @@ namespace H5ServersideProgrammering.Repository
 
         public void Delete(int id)
         {
-            var todoItem = _context.TodoItems.First(x => x.Id == id);
-            _context.TodoItems.Remove(todoItem);
-            _context.SaveChanges();
+            var todoItem = _context.TodoItems.FirstOrDefault(x => x.Id == id);
+            if (todoItem != null)
+            {
+                _context.TodoItems.Remove(todoItem);
+                _context.SaveChanges();
+            }
+            else
+            {
+               
+            }
         }
     }
 }

@@ -79,7 +79,10 @@
                     <ul>
                         @foreach (var item in items)
                         {
-                            <li>@item.ItemText</li>
+                            <li>
+                                @item.ItemText
+                                <button @onclick="() => RemoveTodoItem(item)">Remove</button>
+                            </li>
                         }
                     </ul>
                 }
@@ -153,6 +156,12 @@
                     TodoValue = ""; 
                     message = "Todo item added.";
                 }
+            }
+            private void RemoveTodoItem(TodoItem item)
+            {
+                items.Remove(item);
+                TodoRepository.Delete(item.Id); // Assuming TodoItem has an Id property
+                message = "Todo item removed.";
             }
         }
     </div>
