@@ -39,6 +39,7 @@ namespace H5ServersideProgrammering
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddTransient<IUserCPRRepository, UserCPRRepository>();
+            builder.Services.AddTransient<ITodoRepository, TodoRepository>();
 
             builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>()

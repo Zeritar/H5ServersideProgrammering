@@ -6,28 +6,25 @@
 @attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = "AuthenticatedUser")]
 @inject IUserCPRRepository UserCprRepository
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ITodoRepository TodoRepository
+
 <PageTitle>Home</PageTitle>
 
 <AuthorizeView>
     <Authorized>
-        <h1> @context.User.Identity?.Name!</h1>
+        <h1>@context.User.Identity?.Name!</h1>
         @if (message != null)
         {
-            <h2 style="font-size: 80px;">@message</h2>
+            <h2>@message</h2>
         }
 
-
-
-        @if (items.Count > 0)
+        @if (cprValidated && items.Count > 0)
         {
-
             <ul>
-            @foreach (var item in items)
-            {
-                <li>
-                    @item.ItemText
-                </li>
-            }
+                @foreach (var item in items)
+                {
+                    <li>@item.ItemText</li>
+                }
             </ul>
         }
     </Authorized>
@@ -38,7 +35,6 @@
 <head>
     <title>User CPR Input</title>
     <style>
-        /* Add your CSS styles here */
         body {
             font-family: Arial, sans-serif;
         }
@@ -50,19 +46,19 @@
 
         input,
         button {
-            width: 100%; /* Width minus padding and border */
+            width: 100%;
             margin: 5px 0;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Specify your preferred font family here */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
             button {
                 background-color: #007bff;
                 color: #fff;
                 cursor: pointer;
-                width: 100%; /* Make the submit button same width as input */
+                width: 100%;
             }
                 button:hover {
                     background-color: #0056b3;
@@ -71,19 +67,32 @@
 </head>
 <body>
     <div class="container">
-            <label for="cpr">Indtast dit cpr-nr:</label>
-            <input type="text" @bind="CprValue" @oninput="@((e) => {CprValue=(string?)e.Value;})" id="cpr" name="cpr" maxlength="10" required />
-            <button @onclick="OnButtonPress">Submit</button>
+        <div>
+            @if (!cprValidated)
+            {
+                <label for="cpr">Indtast dit cpr-nr:</label>
+                <input type="text" @bind="CprValue" id="cpr" name="cpr" maxlength="10" required />
+            }
+            else
+            {
+                <label for="todo">Add Todo Item:</label>
+                <input type="text" @bind="TodoValue" id="todo" name="todo" />
+            }
+            <button @onclick="OnSubmit">Submit</button>
+        </div>
+
         @code {
             string? UserID;
             UserCpr? userCpr;
             string? CprValue;
+            string TodoValue;
             List<TodoItem> items = new List<TodoItem>();
             string? message;
+            bool cprValidated = false;
 
-            protected override void OnInitialized()
+            protected override async Task OnInitializedAsync()
             {
-                AuthenticationState state = AuthenticationStateProvider.GetAuthenticationStateAsync().Result;
+                var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
                 UserID = state.User.FindFirstValue(ClaimTypes.NameIdentifier);
             }
 
@@ -93,35 +102,52 @@
 
                 userCpr = UserCprRepository.GetByUserId(UserID);
 
-                if (userCpr == null) return false;
-
-                return true;
+                return userCpr != null;
             }
 
-            public void OnButtonPress()
+            public async Task OnSubmit()
             {
-                if (UserID == null) return;
-                if (CprValue == null  || CprValue == "") return;
-
-                if (ExistInDatabase())
+                if (!cprValidated)
                 {
-                    if (CprValue == userCpr.Cpr)
+                    ValidateCpr();
+                    if (cprValidated)
                     {
-                        message = "du findes i databasen";
-                        items.Add(new TodoItem { ItemText = "gør noget" });
-                    }
-                    else
-                    {
-                        // forkert CPR nummer
-                        message = "FORKERT CPR NUMMER";
+
+                        var allTodoItems = TodoRepository.GetAll();
+                        items.AddRange(allTodoItems);
                     }
                 }
                 else
                 {
-                    message = "du er blevet oprettet";
-                    UserCprRepository.Add(new UserCpr { UserId = UserID, Cpr = CprValue });
+                    AddTodoItem();
                 }
+            }
 
+            private void ValidateCpr()
+            {
+                if (string.IsNullOrEmpty(CprValue)) return;
+
+                if (ExistInDatabase() && CprValue == userCpr?.Cpr)
+                {
+                    message = "CPR validated successfully.";
+                    cprValidated = true;
+                }
+                else
+                {
+                    message = "Incorrect CPR number or user does not exist.";
+                }
+            }
+
+            private void AddTodoItem()
+            {
+                if (!string.IsNullOrWhiteSpace(TodoValue))
+                {
+
+                    items.Add(new TodoItem { ItemText = TodoValue });
+                    TodoRepository.Add(new TodoItem {ItemText = TodoValue});
+                    TodoValue = ""; 
+                    message = "Todo item added.";
+                }
             }
         }
     </div>
