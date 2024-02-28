@@ -10,25 +10,7 @@
 
 <PageTitle>Home</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        <h1>@context.User.Identity?.Name!</h1>
-        @if (message != null)
-        {
-            <h2>@message</h2>
-        }
 
-        @if (cprValidated && items.Count > 0)
-        {
-            <ul>
-                @foreach (var item in items)
-                {
-                    <li>@item.ItemText</li>
-                }
-            </ul>
-        }
-    </Authorized>
-</AuthorizeView>
 
 <!DOCTYPE html>
 <html>
@@ -68,6 +50,15 @@
 <body>
     <div class="container">
         <div>
+            <AuthorizeView>
+                <Authorized>
+                    <h1>@context.User.Identity?.Name!</h1>
+                    @if (message != null)
+                    {
+                        <h2>@message</h2>
+                    }
+                </Authorized>
+            </AuthorizeView>
             @if (!cprValidated)
             {
                 <label for="cpr">Indtast dit cpr-nr:</label>
@@ -80,6 +71,20 @@
             }
             <button @onclick="OnSubmit">Submit</button>
         </div>
+
+        <AuthorizeView>
+            <Authorized>
+                @if (cprValidated && items.Count > 0)
+                {
+                    <ul>
+                        @foreach (var item in items)
+                        {
+                            <li>@item.ItemText</li>
+                        }
+                    </ul>
+                }
+            </Authorized>
+        </AuthorizeView>
 
         @code {
             string? UserID;
@@ -113,7 +118,7 @@
                     if (cprValidated)
                     {
 
-                        var allTodoItems = TodoRepository.GetAll();
+                        var allTodoItems = TodoRepository.GetByUserId(UserID);
                         items.AddRange(allTodoItems);
                     }
                 }
@@ -143,8 +148,8 @@
                 if (!string.IsNullOrWhiteSpace(TodoValue))
                 {
 
-                    items.Add(new TodoItem { ItemText = TodoValue });
-                    TodoRepository.Add(new TodoItem {ItemText = TodoValue});
+                    items.Add(new TodoItem { UserId = UserID, ItemText = TodoValue });
+                    TodoRepository.Add(new TodoItem { UserId = UserID,ItemText = TodoValue});
                     TodoValue = ""; 
                     message = "Todo item added.";
                 }
