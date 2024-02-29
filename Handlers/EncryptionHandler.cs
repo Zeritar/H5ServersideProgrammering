@@ -65,13 +65,6 @@ public class AsymmetricEncryptionHandler
             _privateKey = File.ReadAllText(privateKeyPath);
             _publicKey = File.ReadAllText(publicKeyPath);
         }
-        //using (var rsa = new RSACryptoServiceProvider())
-        //{
-        //    _privateKey = rsa.ToXmlString(true);
-        //    _publicKey = rsa.ToXmlString(false);
-        //}
-        
-
     }
 
     public string Encrypt(string input)

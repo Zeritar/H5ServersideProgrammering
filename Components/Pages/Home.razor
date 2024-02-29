@@ -158,12 +158,13 @@
             {
                 if (!string.IsNullOrWhiteSpace(TodoValue))
                 {
-                    TodoItem newItem = new TodoItem { UserId = UserID, ItemText = TodoValue };
+                    TodoItem newItem = new TodoItem { UserId = UserID, ItemText = AsymmetricEncryptionHandler.Encrypt(TodoValue) };
 
                     int newID = TodoRepository.Add(newItem);
                     if (newID != 0)
                     {
                         newItem.Id = newID;
+                        newItem.ItemText = AsymmetricEncryptionHandler.Decrypt(newItem.ItemText);
                         items.Add(newItem);
                     }
                     TodoValue = ""; 

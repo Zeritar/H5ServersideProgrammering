@@ -1,4 +1,5 @@
 ﻿using H5ServersideProgrammering.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -26,23 +27,24 @@ namespace H5ServersideProgrammering.Repository
 
         public List<TodoItem> GetAll()
         {
-            return _context.TodoItems.ToList();
+            return _context.TodoItems.AsNoTracking().ToList();
         }
 
         public TodoItem? GetById(int id)
         {
-            return _context.TodoItems.FirstOrDefault(t => t.Id == id);
+            return _context.TodoItems.AsNoTracking().FirstOrDefault(t => t.Id == id);
         }
 
         public List<TodoItem> GetByUserId(string userId)
         {
-            return _context.TodoItems.Where(t => t.UserId == userId).ToList();
+            return _context.TodoItems.AsNoTracking().Where(t => t.UserId == userId).ToList();
         }
 
         public int Add(TodoItem todoItem)
         {
             _context.TodoItems.Add(todoItem);
             _context.SaveChanges();
+            _context.Entry(todoItem).State = EntityState.Detached;
             return todoItem.Id;
         }
 
