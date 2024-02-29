@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace H5ServersideProgrammering.Migrations
+namespace H5ServersideProgrammering.Migrations.AppData
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class InitData : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -93,15 +93,15 @@
         </AuthorizeView>
 
         @code {
-                string? UserID;
-                UserCpr? userCpr;
-                string? CprValue;
-                string TodoValue;
-                List<TodoItem> items = new List<TodoItem>();
-                string? message;
-                bool cprValidated = false;
+            string? UserID;
+            UserCpr? userCpr;
+            string? CprValue;
+            string TodoValue;
+            List<TodoItem> items = new List<TodoItem>();
+            string? message;
+            bool cprValidated = false;
 
-                protected override async Task OnInitializedAsync()
+            protected override async Task OnInitializedAsync()
             {
                 var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
                 UserID = state.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -158,9 +158,14 @@
             {
                 if (!string.IsNullOrWhiteSpace(TodoValue))
                 {
+                    TodoItem newItem = new TodoItem { UserId = UserID, ItemText = TodoValue };
 
-                    items.Add(new TodoItem { UserId = UserID, ItemText = TodoValue });
-                    TodoRepository.Add(new TodoItem { UserId = UserID,ItemText = AsymmetricEncryptionHandler.Encrypt(TodoValue)});
+                    int newID = TodoRepository.Add(newItem);
+                    if (newID != 0)
+                    {
+                        newItem.Id = newID;
+                        items.Add(newItem);
+                    }
                     TodoValue = ""; 
                     message = "Todo item added.";
                 }
@@ -168,7 +173,7 @@
             private void RemoveTodoItem(TodoItem item)
             {
                 items.Remove(item);
-                TodoRepository.Delete(item.Id); // Assuming TodoItem has an Id property
+                TodoRepository.Delete(item.Id);
                 message = "Todo item removed.";
             }
         }

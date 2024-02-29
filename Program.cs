@@ -41,10 +41,13 @@ namespace H5ServersideProgrammering
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddTransient<IUserCPRRepository, UserCPRRepository>();
-            builder.Services.AddSingleton<SymmetricEncryptionHandler>();
+            builder.Services.AddTransient<ITodoRepository, TodoRepository>();
+            //builder.Services.AddSingleton<SymmetricEncryptionHandler>();
+
+            // We are only using asymmetric encryption
             builder.Services.AddSingleton<AsymmetricEncryptionHandler>();
             builder.Services.AddSingleton<HashingHandler>();
-            builder.Services.AddTransient<ITodoRepository, TodoRepository>();
+            
 
             builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -60,8 +63,6 @@ namespace H5ServersideProgrammering
                     Policy.RequireAuthenticatedUser();
                 });
             });
-
-
 
             var app = builder.Build();
 

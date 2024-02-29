@@ -10,9 +10,9 @@ namespace H5ServersideProgrammering.Repository
         public List<TodoItem> GetAll();
         public TodoItem? GetById(int id);
         public List<TodoItem> GetByUserId(string userId);
-        public void Add(TodoItem todoItem);
+        public int Add(TodoItem todoItem);
         public void Update(TodoItem todoItem);
-        public void Delete(int id);
+        public bool Delete(int id);
     }
 
     public class TodoRepository : ITodoRepository
@@ -39,10 +39,11 @@ namespace H5ServersideProgrammering.Repository
             return _context.TodoItems.Where(t => t.UserId == userId).ToList();
         }
 
-        public void Add(TodoItem todoItem)
+        public int Add(TodoItem todoItem)
         {
             _context.TodoItems.Add(todoItem);
             _context.SaveChanges();
+            return todoItem.Id;
         }
 
         public void Update(TodoItem todoItem)
@@ -51,18 +52,17 @@ namespace H5ServersideProgrammering.Repository
             _context.SaveChanges();
         }
 
-        public void Delete(int id)
+        public bool Delete(int id)
         {
             var todoItem = _context.TodoItems.FirstOrDefault(x => x.Id == id);
             if (todoItem != null)
             {
                 _context.TodoItems.Remove(todoItem);
                 _context.SaveChanges();
+                return true;
             }
-            else
-            {
-               
-            }
+
+            return false;
         }
     }
 }

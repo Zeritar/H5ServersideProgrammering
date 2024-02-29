@@ -9,7 +9,7 @@ namespace H5ServersideProgrammering.Repository
         public UserCpr? GetByUserId(string userID);
         public void Add(UserCpr userCpr);
         public void Update(UserCpr userCpr);
-        public void Delete(int id);
+        public bool Delete(int id);
     }
 
     public class UserCPRRepository : IUserCPRRepository
@@ -48,11 +48,17 @@ namespace H5ServersideProgrammering.Repository
             _context.SaveChanges();
         }
 
-        public void Delete(int id)
+        public bool Delete(int id)
         {
             var userCpr = _context.UserCprs.First(x => x.Id == id);
-            _context.UserCprs.Remove(userCpr);
-            _context.SaveChanges();
+            if (userCpr != null)
+            {
+                _context.UserCprs.Remove(userCpr);
+                _context.SaveChanges();
+                return true;
+            }
+
+            return false;
         }
     }
 }

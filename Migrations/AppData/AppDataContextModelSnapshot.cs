@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace H5ServersideProgrammering.Migrations
+namespace H5ServersideProgrammering.Migrations.AppData
 {
     [DbContext(typeof(AppDataContext))]
     partial class AppDataContextModelSnapshot : ModelSnapshot

@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace H5ServersideProgrammering.Migrations
+namespace H5ServersideProgrammering.Migrations.AppData
 {
     [DbContext(typeof(AppDataContext))]
-    [Migration("20240228130004_init")]
-    partial class init
+    [Migration("20240229073403_InitData")]
+    partial class InitData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
